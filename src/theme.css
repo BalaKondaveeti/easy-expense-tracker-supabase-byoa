@@ -1,0 +1,49 @@
+/*
+ * Design tokens. Restyle the whole app by editing this file only.
+ * Every color, font, radius and spacing value in styles.css comes from here.
+ */
+:root {
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-size: 16px;
+  --font-size-sm: 13px;
+  --font-size-lg: 22px;
+
+  --bg: #ffffff;
+  --surface: #f6f6f6;
+  --text: #111111;
+  --muted: #8a8a8a;
+  --border: #ebebeb;
+  --accent: #111111; /* primary buttons, selected states */
+  --accent-text: #ffffff;
+  --danger: #c0392b;
+  --overlay: rgb(0 0 0 / 0.35);
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --content-width: 640px;
+  --nav-height: 60px;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111111;
+    --surface: #1c1c1c;
+    --text: #f2f2f2;
+    --muted: #8a8a8a;
+    --border: #262626;
+    --accent: #f2f2f2;
+    --accent-text: #111111;
+    --danger: #e57373;
+    --overlay: rgb(0 0 0 / 0.6);
+
+    color-scheme: dark;
+  }
+}
