@@ -60,3 +60,9 @@ export function formatMonth(yearMonth: string) {
   const [y, m] = yearMonth.split('-').map(Number)
   return new Date(y, m - 1, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
 }
+
+// First day of the month n months ago, e.g. monthsAgo(11) → start of a 12-month window.
+export function monthsAgo(n: number) {
+  const d = new Date()
+  return toISODate(new Date(d.getFullYear(), d.getMonth() - n, 1))
+}

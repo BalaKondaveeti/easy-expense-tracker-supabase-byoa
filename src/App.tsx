@@ -1,6 +1,6 @@
 import type { Session } from '@supabase/supabase-js'
 import { useEffect, useState } from 'react'
-import { CardIcon, GearIcon, ReceiptIcon } from './components/Icons'
+import { CardIcon, MenuIcon, ReceiptIcon } from './components/Icons'
 import { Login } from './components/Login'
 import { Setup } from './components/Setup'
 import { clearCache, setCacheScope, useCached } from './lib/cache'
@@ -11,13 +11,16 @@ import { initSupabase, sb } from './lib/supabase'
 import type { Lists } from './lib/types'
 import { Bills } from './pages/Bills'
 import { Expenses } from './pages/Expenses'
-import { Settings } from './pages/Settings'
+import { Menu } from './pages/Menu'
 
 const ROUTES = [
-  { hash: '#/', label: 'Expenses', icon: <CardIcon /> },
-  { hash: '#/bills', label: 'Bills', icon: <ReceiptIcon /> },
-  { hash: '#/settings', label: 'Settings', icon: <GearIcon /> },
+  { hash: '#/', label: 'Expenses', icon: <CardIcon />, showLabel: true },
+  { hash: '#/bills', label: 'Bills', icon: <ReceiptIcon />, showLabel: true },
+  { hash: '#/menu', label: 'Menu', icon: <MenuIcon />, showLabel: false },
 ]
+
+// '#/menu/cards' → section 'menu'; old '#/settings' links land on the menu.
+const section = (hash: string) => (hash.startsWith('#/menu') || hash === '#/settings' ? '#/menu' : hash)
 
 function useHashRoute() {
   const [hash, setHash] = useState(() => window.location.hash || '#/')
@@ -98,17 +101,27 @@ function Main({ email, onResetConnection }: { email?: string; onResetConnection:
     <ListsContext.Provider value={{ ...lists, reload }}>
       <nav className="nav">
         {ROUTES.map((r) => (
-          <a key={r.hash} href={r.hash} aria-current={hash === r.hash ? 'page' : undefined}>
+          <a
+            key={r.hash}
+            href={r.hash}
+            aria-label={r.label}
+            aria-current={section(hash) === r.hash ? 'page' : undefined}
+          >
             {r.icon}
-            <span>{r.label}</span>
+            {r.showLabel && <span>{r.label}</span>}
           </a>
         ))}
       </nav>
       <main className="app">
         {hash === '#/bills' ? (
           <Bills />
-        ) : hash === '#/settings' ? (
-          <Settings email={email} onSignOut={() => sb().auth.signOut()} onResetConnection={onResetConnection} />
+        ) : section(hash) === '#/menu' ? (
+          <Menu
+            path={hash.replace(/^#\/menu\/?/, '')}
+            email={email}
+            onSignOut={() => sb().auth.signOut()}
+            onResetConnection={onResetConnection}
+          />
         ) : (
           <Expenses />
         )}

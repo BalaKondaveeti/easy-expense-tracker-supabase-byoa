@@ -550,7 +550,101 @@ select.input {
   }
 }
 
-/* ---------- Settings ---------- */
+/* ---------- Menu ---------- */
+
+.menu-group {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 52px;
+  padding: 0 var(--space-4);
+  background: none;
+  border: 0;
+  color: var(--text);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.menu-item + .menu-item {
+  border-top: 1px solid var(--border);
+}
+
+.menu-item svg,
+.menu-detail {
+  color: var(--muted);
+}
+
+.menu-detail {
+  font-size: var(--font-size-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.subpage-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: calc(-1 * var(--space-2));
+}
+
+.back {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  color: var(--text);
+}
+
+.mono {
+  display: flex;
+  align-items: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--font-size-sm);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.month {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.month:last-child {
+  border-bottom: 0;
+}
+
+.month-title {
+  font-weight: 600;
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.month-value {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
 
 .manage-row {
   display: flex;

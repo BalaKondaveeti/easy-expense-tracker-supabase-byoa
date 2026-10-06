@@ -42,15 +42,30 @@ export async function updateListItem(table: ListTable, id: string, values: Recor
 
 // ---------------------------------------------------------------------------
 
+// PostgREST returns at most 1000 rows per request by default, so long ranges are paged.
+const PAGE = 1000
+
+async function fetchAllPages<T>(
+  query: (from: number, to: number) => PromiseLike<{ data: unknown; error: { message: string; code?: string } | null }>,
+): Promise<T[]> {
+  const out: T[] = []
+  for (let from = 0; ; from += PAGE) {
+    const rows = check(await query(from, from + PAGE - 1)) as T[]
+    out.push(...rows)
+    if (rows.length < PAGE) return out
+  }
+}
+
 export async function fetchExpenses(since: string): Promise<Expense[]> {
-  const rows = check(
-    await sb()
+  const rows = await fetchAllPages<Expense>((from, to) =>
+    sb()
       .from('expenses')
       .select('*')
       .gte('spent_on', since)
       .order('spent_on', { ascending: false })
-      .order('created_at', { ascending: false }),
-  ) as Expense[]
+      .order('created_at', { ascending: false })
+      .range(from, to),
+  )
   return rows.map((e) => ({ ...e, amount: Number(e.amount), cashback_pct: Number(e.cashback_pct) }))
 }
 
@@ -65,15 +80,34 @@ export async function deleteExpense(id: string) {
 // ---------------------------------------------------------------------------
 
 export async function fetchBillPayments(since: string): Promise<BillPayment[]> {
-  const rows = check(
-    await sb()
+  const rows = await fetchAllPages<BillPayment>((from, to) =>
+    sb()
       .from('bill_payments')
       .select('*')
       .gte('paid_on', since)
       .order('paid_on', { ascending: false })
-      .order('created_at', { ascending: false }),
-  ) as BillPayment[]
+      .order('created_at', { ascending: false })
+      .range(from, to),
+  )
   return rows.map((b) => ({ ...b, amount: Number(b.amount) }))
+}
+
+// Slim rows for the monthly summary.
+export type MonthlyRow = { date: string; amount: number; currency: string; cashback_pct: number }
+
+export async function fetchMonthlyRows(since: string): Promise<{ expenses: MonthlyRow[]; bills: MonthlyRow[] }> {
+  const [expenses, bills] = await Promise.all([
+    fetchAllPages<{ spent_on: string; amount: number; currency: string; cashback_pct: number }>((from, to) =>
+      sb().from('expenses').select('spent_on, amount, currency, cashback_pct').gte('spent_on', since).order('spent_on').range(from, to),
+    ),
+    fetchAllPages<{ paid_on: string; amount: number; currency: string }>((from, to) =>
+      sb().from('bill_payments').select('paid_on, amount, currency').gte('paid_on', since).order('paid_on').range(from, to),
+    ),
+  ])
+  return {
+    expenses: expenses.map((e) => ({ date: e.spent_on, amount: Number(e.amount), currency: e.currency, cashback_pct: Number(e.cashback_pct) })),
+    bills: bills.map((b) => ({ date: b.paid_on, amount: Number(b.amount), currency: b.currency, cashback_pct: 0 })),
+  }
 }
 
 export async function lastPaymentFor(payeeId: string): Promise<BillPayment | null> {

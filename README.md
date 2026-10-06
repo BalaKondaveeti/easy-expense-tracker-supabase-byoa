@@ -6,7 +6,7 @@ A minimal, mobile-first expense tracker. React + TypeScript + Vite, hosted on Gi
   Each expense has amount + currency, card, cashback %, type, feeling, date and note.
 - **Bills**: EMIs, card payments, loans, rent, utilities, Remitly and so on. Pick a bill from the dropdown and mark it paid. The amount pre-fills from the last payment.
   Shows This week / This month / Last 30 days totals and a per-bill breakdown. Bill totals are kept separate from expenses.
-- **Settings**: add, edit or hide cards (with default cashback %), types, feelings and bills.
+- **Menu (☰)**: manage cards (with default cashback %), expense types, feelings and bills; a monthly summary of expenses and bills; your Supabase connection details; sign out.
 
 Totals are shown per currency (no exchange-rate conversion). USD is the default.
 
