@@ -1,8 +1,9 @@
 import type { Session } from '@supabase/supabase-js'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CardIcon, GearIcon, ReceiptIcon } from './components/Icons'
 import { Login } from './components/Login'
 import { Setup } from './components/Setup'
+import { clearCache, setCacheScope, useCached } from './lib/cache'
 import { clearConfig } from './lib/config'
 import { fetchLists, seedIfEmpty } from './lib/data'
 import { ListsContext } from './lib/lists'
@@ -40,7 +41,10 @@ export default function App() {
     sb()
       .auth.getSession()
       .then(({ data }) => setSession(data.session))
-    const { data } = sb().auth.onAuthStateChange((_event, s) => setSession(s))
+    const { data } = sb().auth.onAuthStateChange((event, s) => {
+      if (event === 'SIGNED_OUT') clearCache()
+      setSession(s)
+    })
     return () => data.subscription.unsubscribe()
   }, [configured])
 
@@ -48,6 +52,7 @@ export default function App() {
     if (!confirm('Forget the Supabase connection on this device?')) return
     await sb().auth.signOut().catch(() => {})
     clearConfig()
+    clearCache()
     initSupabase()
     setSession(undefined)
     setConfigured(false)
@@ -56,28 +61,21 @@ export default function App() {
   if (!configured) return <Setup onDone={() => setConfigured(initSupabase() !== null)} />
   if (session === undefined) return <div className="centered muted">Loading…</div>
   if (!session) return <Login onResetConnection={resetConnection} />
+  setCacheScope(session.user.id)
   return <Main key={session.user.id} email={session.user.email} onResetConnection={resetConnection} />
 }
 
 function Main({ email, onResetConnection }: { email?: string; onResetConnection: () => void }) {
   const hash = useHashRoute()
-  const [lists, setLists] = useState<Lists | null>(null)
-  const [error, setError] = useState('')
-
-  const reload = useCallback(async () => {
-    try {
-      let l = await fetchLists()
-      if (await seedIfEmpty(l)) l = await fetchLists()
-      setLists(l)
-      setError('')
-    } catch (err) {
-      setError((err as Error).message)
-    }
-  }, [])
-
-  useEffect(() => {
-    reload()
-  }, [reload])
+  const {
+    data: lists,
+    error,
+    refresh: reload,
+  } = useCached<Lists>('lists', async () => {
+    let l = await fetchLists()
+    if (await seedIfEmpty(l)) l = await fetchLists()
+    return l
+  })
 
   if (error && !lists) {
     return (

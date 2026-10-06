@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Badge } from '../components/Badge'
 import { Collapsible } from '../components/Collapsible'
+import { Freshness } from '../components/Freshness'
 import { Sheet } from '../components/Sheet'
 import { Totals, type Period } from '../components/Totals'
+import { useCached } from '../lib/cache'
 import { fetchBillPayments } from '../lib/data'
 import { daysAgo, formatDay, formatMonth, shiftDays, startOfMonth, startOfWeek } from '../lib/dates'
 import { groupBy, mainAmount, totalsText } from '../lib/group'
@@ -14,31 +16,15 @@ import { BillForm } from './BillForm'
 type PeriodKey = 'week' | 'month' | '30d'
 
 export function Bills() {
-  const { cards, payees } = useLists()
+  const { cards, payees, reload: reloadLists } = useLists()
   const starts: Record<PeriodKey, string> = { week: startOfWeek(), month: startOfMonth(), '30d': daysAgo(29) }
   const earliest = Object.values(starts).sort()[0]
 
-  const [payments, setPayments] = useState<BillPayment[]>([])
   const [since, setSince] = useState(earliest)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const { data, updatedAt, loading, error, refresh } = useCached(`bills.${since}`, () => fetchBillPayments(since))
+  const payments = data ?? []
   const [period, setPeriod] = useState<PeriodKey>('month')
   const [editing, setEditing] = useState<BillPayment | null>(null)
-
-  const load = useCallback(async () => {
-    try {
-      setPayments(await fetchBillPayments(since))
-      setError('')
-    } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setLoading(false)
-    }
-  }, [since])
-
-  useEffect(() => {
-    load()
-  }, [load])
 
   const inPeriod = (key: PeriodKey) => payments.filter((p) => p.paid_on >= starts[key])
   const total = (rows: BillPayment[]) => sumByCurrency(rows, (p) => p.amount, (p) => p.currency)
@@ -57,18 +43,19 @@ export function Bills() {
 
   const saved = () => {
     setEditing(null)
-    load()
+    refresh()
   }
 
   return (
     <div className="page">
       <div className="page-head">
         <h1>Bills</h1>
+        <Freshness updatedAt={updatedAt} loading={loading} onRefresh={() => Promise.all([refresh(), reloadLists()])} />
       </div>
 
       <section className="section">
         <h2>Pay a bill</h2>
-        <BillForm onDone={load} />
+        <BillForm onDone={refresh} />
       </section>
 
       <Totals periods={periods} selected={period} onSelect={setPeriod} />
@@ -99,8 +86,8 @@ export function Bills() {
 
       <section className="section">
         <h2>Payments</h2>
-        {loading ? (
-          <p className="empty">Loading…</p>
+        {!data ? (
+          <p className="empty">{loading ? 'Loading…' : ''}</p>
         ) : visible.length === 0 ? (
           <p className="empty">No payments in this period.</p>
         ) : (
@@ -130,7 +117,7 @@ export function Bills() {
             ))}
           </div>
         )}
-        {period === '30d' && !loading && (
+        {period === '30d' && data && (
           <button className="btn btn-ghost" onClick={() => setSince(shiftDays(since, -30))}>
             Show older (since {formatDay(since)})
           </button>

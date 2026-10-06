@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Badge } from '../components/Badge'
 import { Collapsible } from '../components/Collapsible'
+import { Freshness } from '../components/Freshness'
 import { Sheet } from '../components/Sheet'
 import { Totals, type Period } from '../components/Totals'
+import { useCached } from '../lib/cache'
 import { fetchExpenses } from '../lib/data'
 import { daysAgo, formatDay, shiftDays, today } from '../lib/dates'
 import { groupBy, mainAmount, totalsText } from '../lib/group'
@@ -15,29 +17,13 @@ type PeriodKey = 'today' | '7d' | '30d'
 type Breakdown = 'type' | 'feeling' | 'card'
 
 export function Expenses() {
-  const { cards, categories, moods } = useLists()
-  const [expenses, setExpenses] = useState<Expense[]>([])
+  const { cards, categories, moods, reload: reloadLists } = useLists()
   const [since, setSince] = useState(daysAgo(29))
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const { data, updatedAt, loading, error, refresh } = useCached(`expenses.${since}`, () => fetchExpenses(since))
+  const expenses = data ?? []
   const [period, setPeriod] = useState<PeriodKey>('7d')
   const [breakdown, setBreakdown] = useState<Breakdown>('type')
   const [editing, setEditing] = useState<Expense | 'new' | null>(null)
-
-  const load = useCallback(async () => {
-    try {
-      setExpenses(await fetchExpenses(since))
-      setError('')
-    } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setLoading(false)
-    }
-  }, [since])
-
-  useEffect(() => {
-    load()
-  }, [load])
 
   const starts: Record<PeriodKey, string> = { today: today(), '7d': daysAgo(6), '30d': daysAgo(29) }
   const inPeriod = (key: PeriodKey) => expenses.filter((e) => e.spent_on >= starts[key])
@@ -68,13 +54,14 @@ export function Expenses() {
   const close = () => setEditing(null)
   const saved = () => {
     setEditing(null)
-    load()
+    refresh()
   }
 
   return (
     <div className="page">
       <div className="page-head">
         <h1>Expenses</h1>
+        <Freshness updatedAt={updatedAt} loading={loading} onRefresh={() => Promise.all([refresh(), reloadLists()])} />
       </div>
 
       <Totals periods={periods} selected={period} onSelect={setPeriod} />
@@ -112,8 +99,8 @@ export function Expenses() {
 
       <section className="section">
         <h2>{periods.find((p) => p.key === period)?.label}</h2>
-        {loading ? (
-          <p className="empty">Loading…</p>
+        {!data ? (
+          <p className="empty">{loading ? 'Loading…' : ''}</p>
         ) : days.length === 0 ? (
           <p className="empty">No expenses yet. Tap + to add one.</p>
         ) : (
@@ -131,7 +118,7 @@ export function Expenses() {
             ))}
           </div>
         )}
-        {period === '30d' && !loading && (
+        {period === '30d' && data && (
           <button
             className="btn btn-ghost"
             onClick={() => setSince(shiftDays(since, -30))}
