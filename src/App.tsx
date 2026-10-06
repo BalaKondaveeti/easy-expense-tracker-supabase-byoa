@@ -1,5 +1,6 @@
 import type { Session } from '@supabase/supabase-js'
 import { useCallback, useEffect, useState } from 'react'
+import { CardIcon, GearIcon, ReceiptIcon } from './components/Icons'
 import { Login } from './components/Login'
 import { Setup } from './components/Setup'
 import { clearConfig } from './lib/config'
@@ -12,9 +13,9 @@ import { Expenses } from './pages/Expenses'
 import { Settings } from './pages/Settings'
 
 const ROUTES = [
-  { hash: '#/', label: 'Expenses' },
-  { hash: '#/bills', label: 'Bills' },
-  { hash: '#/settings', label: 'Settings' },
+  { hash: '#/', label: 'Expenses', icon: <CardIcon /> },
+  { hash: '#/bills', label: 'Bills', icon: <ReceiptIcon /> },
+  { hash: '#/settings', label: 'Settings', icon: <GearIcon /> },
 ]
 
 function useHashRoute() {
@@ -100,7 +101,8 @@ function Main({ email, onResetConnection }: { email?: string; onResetConnection:
       <nav className="nav">
         {ROUTES.map((r) => (
           <a key={r.hash} href={r.hash} aria-current={hash === r.hash ? 'page' : undefined}>
-            {r.label}
+            {r.icon}
+            <span>{r.label}</span>
           </a>
         ))}
       </nav>

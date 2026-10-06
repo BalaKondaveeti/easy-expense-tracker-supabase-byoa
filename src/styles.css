@@ -103,12 +103,23 @@ textarea {
 .nav a {
   flex: 1;
   max-width: 160px;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
   color: var(--muted);
   text-decoration: none;
   font-size: var(--font-size-sm);
   font-weight: 500;
+}
+
+.nav a + a {
+  border-left: 1px solid var(--border);
+}
+
+.nav a {
+  margin: var(--space-2) 0;
 }
 
 .nav a[aria-current='page'] {
