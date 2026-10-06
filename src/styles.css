@@ -261,6 +261,19 @@ textarea {
   color: var(--muted);
 }
 
+/* free-text note: wraps up to two lines */
+.row-note {
+  margin-top: 2px;
+  font-size: var(--font-size-sm);
+  color: var(--muted);
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
 .row-amount {
   font-weight: 500;
   font-variant-numeric: tabular-nums;

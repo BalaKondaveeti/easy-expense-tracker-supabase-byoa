@@ -54,3 +54,9 @@ export function formatDay(iso: string) {
     year: sameYear ? undefined : 'numeric',
   })
 }
+
+// '2026-10' → 'October 2026'
+export function formatMonth(yearMonth: string) {
+  const [y, m] = yearMonth.split('-').map(Number)
+  return new Date(y, m - 1, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+}

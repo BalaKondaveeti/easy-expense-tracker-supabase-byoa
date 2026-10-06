@@ -4,7 +4,7 @@ import { Collapsible } from '../components/Collapsible'
 import { Sheet } from '../components/Sheet'
 import { Totals, type Period } from '../components/Totals'
 import { fetchBillPayments } from '../lib/data'
-import { daysAgo, formatDay, shiftDays, startOfMonth, startOfWeek } from '../lib/dates'
+import { daysAgo, formatDay, formatMonth, shiftDays, startOfMonth, startOfWeek } from '../lib/dates'
 import { groupBy, mainAmount, totalsText } from '../lib/group'
 import { byId, useLists } from '../lib/lists'
 import { formatMoney, sumByCurrency } from '../lib/money'
@@ -105,20 +105,29 @@ export function Bills() {
           <p className="empty">No payments in this period.</p>
         ) : (
           <div className="list">
-            {visible.map((p) => {
-              const payee = byId(payees, p.payee_id)
-              const sub = [formatDay(p.paid_on), byId(cards, p.card_id)?.name, p.note].filter(Boolean)
-              return (
-                <button key={p.id} className="row" onClick={() => setEditing(p)}>
-                  <Badge emoji={payee?.emoji} color={payee?.color} />
-                  <div className="row-main">
-                    <div className="row-title">{payee?.name ?? 'Unknown'}</div>
-                    <div className="row-sub">{sub.join(' · ')}</div>
-                  </div>
-                  <div className="row-amount">{formatMoney(p.amount, p.currency)}</div>
-                </button>
-              )
-            })}
+            {groupBy(visible, (p) => p.paid_on.slice(0, 7), (p) => p.amount).map((month) => (
+              <div key={month.key}>
+                <div className="day">
+                  <span>{formatMonth(month.key)}</span>
+                  <span>{totalsText(month.totals)}</span>
+                </div>
+                {month.rows.map((p) => {
+                  const payee = byId(payees, p.payee_id)
+                  const sub = [formatDay(p.paid_on), byId(cards, p.card_id)?.name].filter(Boolean)
+                  return (
+                    <button key={p.id} className="row" onClick={() => setEditing(p)}>
+                      <Badge emoji={payee?.emoji} color={payee?.color} />
+                      <div className="row-main">
+                        <div className="row-title">{payee?.name ?? 'Unknown'}</div>
+                        <div className="row-sub">{sub.join(' · ')}</div>
+                        {p.note && <div className="row-note">{p.note}</div>}
+                      </div>
+                      <div className="row-amount">{formatMoney(p.amount, p.currency)}</div>
+                    </button>
+                  )
+                })}
+              </div>
+            ))}
           </div>
         )}
         {period === '30d' && !loading && (

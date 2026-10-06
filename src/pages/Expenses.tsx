@@ -171,6 +171,7 @@ function ExpenseRow({ expense: e, onClick }: { expense: Expense; onClick: () => 
       <div className="row-main">
         <div className="row-title">{e.title}</div>
         {sub.length > 0 && <div className="row-sub" title={mood?.name}>{sub.join(' · ')}</div>}
+        {e.note && <div className="row-note">{e.note}</div>}
       </div>
       <div className="row-amount">{formatMoney(e.amount, e.currency)}</div>
     </button>
