@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Badge } from '../components/Badge'
+import { Collapsible } from '../components/Collapsible'
 import { Sheet } from '../components/Sheet'
 import { Totals, type Period } from '../components/Totals'
 import { fetchExpenses } from '../lib/data'
@@ -81,7 +82,7 @@ export function Expenses() {
       {error && <p className="error">{error}</p>}
 
       {breakdownGroups.length > 0 && (
-        <section className="section">
+        <Collapsible id="expenses-breakdown" title="Breakdown">
           <div className="tabs">
             {(['type', 'feeling', 'card'] as Breakdown[]).map((b) => (
               <button key={b} className="tab" aria-pressed={breakdown === b} onClick={() => setBreakdown(b)}>
@@ -106,7 +107,7 @@ export function Expenses() {
               )
             })}
           </div>
-        </section>
+        </Collapsible>
       )}
 
       <section className="section">

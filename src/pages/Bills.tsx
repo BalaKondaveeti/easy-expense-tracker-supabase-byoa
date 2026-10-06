@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Badge } from '../components/Badge'
+import { Collapsible } from '../components/Collapsible'
 import { Sheet } from '../components/Sheet'
 import { Totals, type Period } from '../components/Totals'
 import { fetchBillPayments } from '../lib/data'
@@ -75,8 +76,7 @@ export function Bills() {
       {error && <p className="error">{error}</p>}
 
       {byPayee.length > 0 && (
-        <section className="section">
-          <h2>By bill</h2>
+        <Collapsible id="bills-breakdown" title="By bill">
           <div className="list">
             {byPayee.map((g) => {
               const payee = byId(payees, g.key)
@@ -94,7 +94,7 @@ export function Bills() {
               )
             })}
           </div>
-        </section>
+        </Collapsible>
       )}
 
       <section className="section">

@@ -188,6 +188,30 @@ textarea {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- Collapsible ---------- */
+
+.collapse-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  background: var(--surface);
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.collapse-toggle svg {
+  transition: transform 0.15s;
+}
+
+.collapse-toggle[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+
 /* ---------- Lists ---------- */
 
 .list {
