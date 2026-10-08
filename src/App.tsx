@@ -5,12 +5,14 @@ import { Login } from './components/Login'
 import { Setup } from './components/Setup'
 import { clearCache, setCacheScope, useCached } from './lib/cache'
 import { clearConfig } from './lib/config'
+import { daysAgo } from './lib/dates'
 import { fetchLists, seedIfEmpty } from './lib/data'
 import { ListsContext } from './lib/lists'
 import { initSupabase, sb } from './lib/supabase'
 import type { Lists } from './lib/types'
 import { Bills } from './pages/Bills'
 import { Expenses } from './pages/Expenses'
+import { FilteredExpenses, FilteredPayments } from './pages/Filtered'
 import { Menu } from './pages/Menu'
 
 const ROUTES = [
@@ -19,8 +21,19 @@ const ROUTES = [
   { hash: '#/menu', label: 'Menu', icon: <MenuIcon />, showLabel: false },
 ]
 
-// '#/menu/cards' → section 'menu'; old '#/settings' links land on the menu.
-const section = (hash: string) => (hash.startsWith('#/menu') || hash === '#/settings' ? '#/menu' : hash)
+// Which bottom tab a route belongs to: '#/menu/cards' → menu, '#/bills/payee_id/…' → bills,
+// '#/expenses/…' → expenses. Old '#/settings' links land on the menu.
+function section(hash: string) {
+  if (hash.startsWith('#/menu') || hash === '#/settings') return '#/menu'
+  if (hash.startsWith('#/bills')) return '#/bills'
+  return '#/'
+}
+
+// '#/expenses/category_id/<id>?from=2026-10-01' → ['expenses', 'category_id', '<id>'], from
+function parseRoute(hash: string) {
+  const [path, query = ''] = hash.slice(1).split('?')
+  return { parts: path.split('/').filter(Boolean), from: new URLSearchParams(query).get('from') ?? daysAgo(29) }
+}
 
 function useHashRoute() {
   const [hash, setHash] = useState(() => window.location.hash || '#/')
@@ -113,19 +126,28 @@ function Main({ email, onResetConnection }: { email?: string; onResetConnection:
         ))}
       </nav>
       <main className="app">
-        {hash === '#/bills' ? (
-          <Bills />
-        ) : section(hash) === '#/menu' ? (
-          <Menu
-            path={hash.replace(/^#\/menu\/?/, '')}
-            email={email}
-            onSignOut={() => sb().auth.signOut()}
-            onResetConnection={onResetConnection}
-          />
-        ) : (
-          <Expenses />
-        )}
+        <Route hash={hash} email={email} onResetConnection={onResetConnection} />
       </main>
     </ListsContext.Provider>
   )
+}
+
+function Route({ hash, email, onResetConnection }: { hash: string; email?: string; onResetConnection: () => void }) {
+  const { parts, from } = parseRoute(hash)
+  if (parts[0] === 'expenses' && parts.length === 3) {
+    return <FilteredExpenses key={hash} column={parts[1]} id={parts[2]} from={from} />
+  }
+  if (parts[0] === 'bills' && parts.length === 3) return <FilteredPayments key={hash} id={parts[2]} from={from} />
+  if (parts[0] === 'bills') return <Bills />
+  if (section(hash) === '#/menu') {
+    return (
+      <Menu
+        path={parts.slice(1).join('/')}
+        email={email}
+        onSignOut={() => sb().auth.signOut()}
+        onResetConnection={onResetConnection}
+      />
+    )
+  }
+  return <Expenses />
 }

@@ -51,7 +51,7 @@ export function Menu({
       </MenuSection>
       <MenuSection title="App">
         <MenuLink href={`#/menu/${CONNECTION.path}`} label={CONNECTION.title} />
-        <button className="menu-item" onClick={onSignOut}>
+        <button className="menu-item danger" onClick={onSignOut}>
           <span className="grow">Sign out</span>
           {email && <span className="menu-detail">{email}</span>}
         </button>

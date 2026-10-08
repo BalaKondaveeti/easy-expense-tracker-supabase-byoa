@@ -305,6 +305,94 @@ textarea {
   white-space: nowrap;
 }
 
+/* rows that navigate (breakdowns) */
+.row-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* swipe-left actions */
+.swipe {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+
+.swipe:last-child {
+  border-bottom: 0;
+}
+
+.swipe .row {
+  border-bottom: 0;
+}
+
+.swipe-actions {
+  position: absolute;
+  inset: 0 0 0 auto;
+  display: flex;
+}
+
+.swipe-action {
+  flex: 1;
+  border: 0;
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.swipe-action.danger {
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.swipe-content {
+  position: relative;
+  background: var(--bg);
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+
+.swipe-content.settle {
+  transition: transform 0.2s ease;
+}
+
+/* expanded row details */
+.row.expanded {
+  align-items: flex-start;
+}
+
+.row.expanded .row-amount {
+  padding-top: 10px;
+}
+
+.details {
+  display: grid;
+  gap: var(--space-1);
+  margin: var(--space-3) 0 var(--space-1);
+  font-size: var(--font-size-sm);
+}
+
+.details > div {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.details dt {
+  flex: none;
+  width: 104px;
+  color: var(--muted);
+}
+
+.details dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .badge {
   flex: none;
   display: grid;
@@ -581,6 +669,10 @@ select.input {
 .menu-item svg,
 .menu-detail {
   color: var(--muted);
+}
+
+.menu-item.danger {
+  color: var(--danger);
 }
 
 .menu-detail {

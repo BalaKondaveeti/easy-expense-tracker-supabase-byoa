@@ -1,3 +1,4 @@
+import { invalidateCache } from './cache'
 import { sb } from './supabase'
 import type { BillPayment, Card, Category, Expense, Lists, Mood, Payee } from './types'
 
@@ -33,11 +34,14 @@ export async function fetchLists(): Promise<Lists> {
 }
 
 export async function insertListItem<T>(table: ListTable, values: Record<string, unknown>): Promise<T> {
-  return check(await sb().from(table).insert(values).select().single())
+  const item = check(await sb().from(table).insert(values).select().single()) as T
+  invalidateCache()
+  return item
 }
 
 export async function updateListItem(table: ListTable, id: string, values: Record<string, unknown>) {
   check(await sb().from(table).update(values).eq('id', id))
+  invalidateCache()
 }
 
 // ---------------------------------------------------------------------------
@@ -56,39 +60,36 @@ async function fetchAllPages<T>(
   }
 }
 
-export async function fetchExpenses(since: string): Promise<Expense[]> {
-  const rows = await fetchAllPages<Expense>((from, to) =>
-    sb()
-      .from('expenses')
-      .select('*')
-      .gte('spent_on', since)
-      .order('spent_on', { ascending: false })
-      .order('created_at', { ascending: false })
-      .range(from, to),
-  )
+// Optional single-column filter, e.g. only one category. id null = "not set".
+export type Filter = { column: string; id: string | null }
+
+export async function fetchExpenses(since: string, filter?: Filter): Promise<Expense[]> {
+  const rows = await fetchAllPages<Expense>((from, to) => {
+    let q = sb().from('expenses').select('*').gte('spent_on', since)
+    if (filter) q = filter.id ? q.eq(filter.column, filter.id) : q.is(filter.column, null)
+    return q.order('spent_on', { ascending: false }).order('created_at', { ascending: false }).range(from, to)
+  })
   return rows.map((e) => ({ ...e, amount: Number(e.amount), cashback_pct: Number(e.cashback_pct) }))
 }
 
 export async function saveExpense(values: Omit<Expense, 'id'>, id?: string) {
   check(id ? await sb().from('expenses').update(values).eq('id', id) : await sb().from('expenses').insert(values))
+  invalidateCache()
 }
 
 export async function deleteExpense(id: string) {
   check(await sb().from('expenses').delete().eq('id', id))
+  invalidateCache()
 }
 
 // ---------------------------------------------------------------------------
 
-export async function fetchBillPayments(since: string): Promise<BillPayment[]> {
-  const rows = await fetchAllPages<BillPayment>((from, to) =>
-    sb()
-      .from('bill_payments')
-      .select('*')
-      .gte('paid_on', since)
-      .order('paid_on', { ascending: false })
-      .order('created_at', { ascending: false })
-      .range(from, to),
-  )
+export async function fetchBillPayments(since: string, filter?: Filter): Promise<BillPayment[]> {
+  const rows = await fetchAllPages<BillPayment>((from, to) => {
+    let q = sb().from('bill_payments').select('*').gte('paid_on', since)
+    if (filter) q = filter.id ? q.eq(filter.column, filter.id) : q.is(filter.column, null)
+    return q.order('paid_on', { ascending: false }).order('created_at', { ascending: false }).range(from, to)
+  })
   return rows.map((b) => ({ ...b, amount: Number(b.amount) }))
 }
 
@@ -127,10 +128,12 @@ export async function saveBillPayment(values: Omit<BillPayment, 'id'>, id?: stri
   check(
     id ? await sb().from('bill_payments').update(values).eq('id', id) : await sb().from('bill_payments').insert(values),
   )
+  invalidateCache()
 }
 
 export async function deleteBillPayment(id: string) {
   check(await sb().from('bill_payments').delete().eq('id', id))
+  invalidateCache()
 }
 
 // ---------------------------------------------------------------------------
