@@ -72,7 +72,7 @@ export function Expenses() {
 
   return (
     <div className="page">
-      <div className="page-head">
+      <div className="page-head sticky-head">
         <h1>Expenses</h1>
         <Freshness updatedAt={updatedAt} loading={loading} onRefresh={() => Promise.all([refresh(), reloadLists()])} />
       </div>

@@ -16,6 +16,7 @@
   --accent: #111111; /* primary buttons, selected states */
   --accent-text: #ffffff;
   --danger: #c0392b;
+  --delete-action: #2563eb; /* swipe-left Delete button */
   --overlay: rgb(0 0 0 / 0.35);
 
   --radius: 12px;
@@ -42,6 +43,7 @@
     --accent: #f2f2f2;
     --accent-text: #111111;
     --danger: #e57373;
+    --delete-action: #3b82f6;
     --overlay: rgb(0 0 0 / 0.6);
 
     color-scheme: dark;

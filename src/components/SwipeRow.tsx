@@ -3,7 +3,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 const ACTION_WIDTH = 76
 const OPEN_EVENT = 'eet:swipe-open'
 
-export type SwipeAction = { label: string; onClick: () => void; danger?: boolean }
+export type SwipeAction = { label: string; icon?: ReactNode; onClick: () => void; tone?: 'delete' }
 
 // A row that reveals action buttons when swiped left. Tapping the row calls onTap
 // (or closes it if open). Only one row is open at a time.
@@ -73,14 +73,15 @@ export function SwipeRow({ actions, onTap, children }: { actions: SwipeAction[];
         {actions.map((a) => (
           <button
             key={a.label}
-            className={`swipe-action${a.danger ? ' danger' : ''}`}
+            className={`swipe-action${a.tone ? ` ${a.tone}` : ''}`}
             tabIndex={open ? 0 : -1}
             onClick={() => {
               setOpenState(false)
               a.onClick()
             }}
           >
-            {a.label}
+            {a.icon}
+            <span>{a.label}</span>
           </button>
         ))}
       </div>

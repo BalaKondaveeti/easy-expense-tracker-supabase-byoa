@@ -8,6 +8,7 @@ import type { BillPayment, Expense } from '../lib/types'
 import { BillForm } from '../pages/BillForm'
 import { ExpenseForm } from '../pages/ExpenseForm'
 import { Badge } from './Badge'
+import { PencilIcon, TrashIcon } from './Icons'
 import { Sheet } from './Sheet'
 import { SwipeRow } from './SwipeRow'
 
@@ -57,8 +58,8 @@ export function ExpenseList({ expenses, emptyText }: { expenses: Expense[]; empt
                 key={e.id}
                 onTap={() => setExpanded(expanded === e.id ? null : e.id)}
                 actions={[
-                  { label: 'Edit', onClick: () => setEditing(e) },
-                  { label: 'Delete', danger: true, onClick: () => confirmDelete('expense', () => deleteExpense(e.id)) },
+                  { label: 'Edit', icon: <PencilIcon />, onClick: () => setEditing(e) },
+                  { label: 'Delete', icon: <TrashIcon />, tone: 'delete', onClick: () => confirmDelete('expense', () => deleteExpense(e.id)) },
                 ]}
               >
                 <ExpenseRow expense={e} expanded={expanded === e.id} />
@@ -135,8 +136,8 @@ export function PaymentList({ payments, emptyText }: { payments: BillPayment[]; 
                   key={p.id}
                   onTap={() => setExpanded(open ? null : p.id)}
                   actions={[
-                    { label: 'Edit', onClick: () => setEditing(p) },
-                    { label: 'Delete', danger: true, onClick: () => confirmDelete('payment', () => deleteBillPayment(p.id)) },
+                    { label: 'Edit', icon: <PencilIcon />, onClick: () => setEditing(p) },
+                    { label: 'Delete', icon: <TrashIcon />, tone: 'delete', onClick: () => confirmDelete('payment', () => deleteBillPayment(p.id)) },
                   ]}
                 >
                   <div className={`row${open ? ' expanded' : ''}`}>

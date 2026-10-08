@@ -4,13 +4,19 @@ import { ExpenseList, PaymentList } from '../components/EntryLists'
 import { Freshness } from '../components/Freshness'
 import { useCached } from '../lib/cache'
 import { fetchBillPayments, fetchExpenses } from '../lib/data'
-import { formatDay, shiftDays } from '../lib/dates'
+import { formatDay, monthsAgo, shiftDays } from '../lib/dates'
 import { totalsText } from '../lib/group'
 import { byId, useLists } from '../lib/lists'
 import { sumByCurrency } from '../lib/money'
 
 // Pages opened from a breakdown row: only the entries of one category / feeling / card / bill.
 // Route: #/expenses/<column>/<id|none>?from=YYYY-MM-DD  or  #/bills/payee_id/<id>?from=...
+
+// Start at the selected period, but always show at least this month and the two before it.
+const startFrom = (from: string) => {
+  const threeMonths = monthsAgo(2)
+  return from < threeMonths ? from : threeMonths
+}
 
 function FilteredPage({
   backHref,
@@ -37,7 +43,7 @@ function FilteredPage({
 }) {
   return (
     <div className="page">
-      <div className="subpage-head">
+      <div className="subpage-head sticky-head">
         <a
           className="back"
           href={backHref}
@@ -76,7 +82,7 @@ function FilteredPage({
 export function FilteredExpenses({ column, id, from }: { column: string; id: string; from: string }) {
   const { cards, categories, moods } = useLists()
   const [extraDays, setExtraDays] = useState(0)
-  const since = shiftDays(from, -extraDays)
+  const since = shiftDays(startFrom(from), -extraDays)
   const filter = { column, id: id === 'none' ? null : id }
   const { data, updatedAt, loading, error, refresh } = useCached(`expenses.${column}.${id}.${since}`, () =>
     fetchExpenses(since, filter),
@@ -111,7 +117,7 @@ export function FilteredExpenses({ column, id, from }: { column: string; id: str
 export function FilteredPayments({ id, from }: { id: string; from: string }) {
   const { payees } = useLists()
   const [extraDays, setExtraDays] = useState(0)
-  const since = shiftDays(from, -extraDays)
+  const since = shiftDays(startFrom(from), -extraDays)
   const { data, updatedAt, loading, error, refresh } = useCached(`bills.payee.${id}.${since}`, () =>
     fetchBillPayments(since, { column: 'payee_id', id }),
   )

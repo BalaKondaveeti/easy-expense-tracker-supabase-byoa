@@ -65,6 +65,25 @@ textarea {
   gap: var(--space-3);
 }
 
+/* Page title / back bar stays pinned while the page scrolls. Negative margin + padding
+   let its background cover the area above it (incl. the phone status bar). */
+.sticky-head {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin: calc(-1 * (var(--space-5) + env(safe-area-inset-top))) 0 0;
+  padding: calc(var(--space-5) + env(safe-area-inset-top)) 0 var(--space-3);
+  background: var(--bg);
+}
+
+@media (min-width: 768px) {
+  .sticky-head {
+    top: var(--nav-height);
+    margin-top: calc(-1 * var(--space-6));
+    padding-top: var(--space-6);
+  }
+}
+
 .section {
   display: flex;
   flex-direction: column;
@@ -334,6 +353,11 @@ textarea {
 
 .swipe-action {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
   border: 0;
   background: var(--surface);
   color: var(--text);
@@ -342,8 +366,8 @@ textarea {
   cursor: pointer;
 }
 
-.swipe-action.danger {
-  background: var(--danger);
+.swipe-action.delete {
+  background: var(--delete-action);
   color: #ffffff;
 }
 
