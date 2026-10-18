@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { loadConfig } from '../lib/config'
+import { isDefaultConfig, loadConfig } from '../lib/config'
 
 function mask(key: string) {
   return key.length > 16 ? `${key.slice(0, 12)}••••••••${key.slice(-4)}` : '••••••••'
 }
 
 // Shows the Supabase details saved in this browser.
-export function Connection({ onResetConnection }: { onResetConnection: () => void }) {
+export function Connection({ onChangeProject }: { onChangeProject: () => void }) {
   const config = loadConfig()
   const [showKey, setShowKey] = useState(false)
   const [copied, setCopied] = useState('')
@@ -20,8 +20,6 @@ export function Connection({ onResetConnection }: { onResetConnection: () => voi
       // clipboard blocked; the value is still visible to copy by hand
     }
   }
-
-  if (!config) return null
 
   return (
     <section className="section">
@@ -46,11 +44,13 @@ export function Connection({ onResetConnection }: { onResetConnection: () => voi
           </button>
         </div>
       </div>
-      <p className="hint">Saved only in this browser. Use these to connect another device.</p>
-      <button className="btn btn-danger" onClick={onResetConnection}>
-        Disconnect Supabase project
+      <p className="hint">
+        {isDefaultConfig(config) ? 'This is the default project.' : 'A custom project, saved only in this browser.'}
+      </p>
+      <button className="btn" onClick={onChangeProject}>
+        Change Supabase project
       </button>
-      <p className="hint">Disconnecting only forgets the details on this device. Your data stays in Supabase.</p>
+      <p className="hint">Changing the project signs you out. Your data stays in Supabase.</p>
     </section>
   )
 }

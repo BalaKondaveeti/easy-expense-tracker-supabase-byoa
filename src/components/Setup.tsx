@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from 'react'
-import { normalizeUrl, saveConfig, verifyConfig } from '../lib/config'
+import { clearConfig, DEFAULT_CONFIG, isDefaultConfig, loadConfig, normalizeUrl, saveConfig, verifyConfig } from '../lib/config'
 
-export function Setup({ onDone }: { onDone: () => void }) {
-  const [url, setUrl] = useState('')
-  const [key, setKey] = useState('')
+// Change which Supabase project this browser uses. Pre-filled with the current one.
+export function Setup({ onDone, onCancel }: { onDone: () => void; onCancel: () => void }) {
+  const [url, setUrl] = useState(() => loadConfig().url)
+  const [key, setKey] = useState(() => loadConfig().key)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -14,7 +15,8 @@ export function Setup({ onDone }: { onDone: () => void }) {
     const config = { url: normalizeUrl(url), key: key.trim() }
     try {
       await verifyConfig(config)
-      saveConfig(config)
+      if (isDefaultConfig(config)) clearConfig()
+      else saveConfig(config)
       onDone()
     } catch (err) {
       setError((err as Error).message)
@@ -26,9 +28,9 @@ export function Setup({ onDone }: { onDone: () => void }) {
   return (
     <div className="centered">
       <form className="narrow form" onSubmit={submit}>
-        <h1>Connect Supabase</h1>
+        <h1>Supabase project</h1>
         <p className="hint">
-          Find these in your Supabase project under Project Settings → API. They are saved only in this browser.
+          Find these in your Supabase project under Project Settings → API. A different project is saved only in this browser.
         </p>
         <label className="field">
           <span>Project URL</span>
@@ -56,7 +58,22 @@ export function Setup({ onDone }: { onDone: () => void }) {
         </label>
         {error && <p className="error">{error}</p>}
         <button className="btn btn-primary" disabled={busy}>
-          {busy ? 'Checking…' : 'Continue'}
+          {busy ? 'Checking…' : 'Save'}
+        </button>
+        {(url !== DEFAULT_CONFIG.url || key !== DEFAULT_CONFIG.key) && (
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => {
+              setUrl(DEFAULT_CONFIG.url)
+              setKey(DEFAULT_CONFIG.key)
+            }}
+          >
+            Use default project
+          </button>
+        )}
+        <button type="button" className="btn btn-ghost" onClick={onCancel}>
+          Cancel
         </button>
       </form>
     </div>

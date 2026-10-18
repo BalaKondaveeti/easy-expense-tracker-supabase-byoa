@@ -22,12 +22,12 @@ export function Menu({
   path,
   email,
   onSignOut,
-  onResetConnection,
+  onChangeProject,
 }: {
   path: string
   email?: string
   onSignOut: () => void
-  onResetConnection: () => void
+  onChangeProject: () => void
 }) {
   const lists = useLists()
 
@@ -35,7 +35,7 @@ export function Menu({
   if (listPage) return <SubPage title={listPage.title}><ListManager table={listPage.table} /></SubPage>
   if (path === MONTHLY.path) return <SubPage title={MONTHLY.title}><Monthly /></SubPage>
   if (path === CONNECTION.path)
-    return <SubPage title={CONNECTION.title}><Connection onResetConnection={onResetConnection} /></SubPage>
+    return <SubPage title={CONNECTION.title}><Connection onChangeProject={onChangeProject} /></SubPage>
 
   const active = (table: ListTable) => lists[table].filter((i) => !i.archived).length
 

@@ -23,16 +23,19 @@ Totals are shown per currency (no exchange-rate conversion). USD is the default.
 
 ## 2. First launch
 
-1. Open the app and paste the Project URL and key. They are stored only in that browser's localStorage.
-2. Choose **Create an account** (email + password). Confirm the email if Supabase asks you to.
-3. After you sign in for the first time, the app adds starter lists (types, feelings, a few bills, and "Cash"). Edit them in Settings.
+The app connects to the project set in `DEFAULT_CONFIG` (`src/lib/config.ts`) out of the box.
+**If you fork this repo, change `DEFAULT_CONFIG` to your own project's URL and publishable key.**
+To use a different project on one device, tap **Change Supabase project** on the sign-in screen
+(or Menu → Supabase connection). That choice is saved only in that browser.
+
+1. Open the app and choose **Create an account** (email and password). Confirm the email if Supabase asks you to.
+2. After you sign in for the first time, the app adds starter lists (types, feelings, a few bills, and "Cash"). Edit them from the menu.
 
 ### Lock it down (recommended)
 
 Once your account exists, go to **Authentication → Sign In / Providers** and turn off **Allow new users to sign up**.
 The publishable key is safe to expose. With sign-ups off and RLS on, nobody else can create an account or read your data.
 
-On each new device or browser, enter the URL and key once, then sign in.
 
 ## 3. Deploy to GitHub Pages
 

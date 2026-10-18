@@ -1,11 +1,18 @@
-// Supabase connection details live in this browser only (localStorage),
-// so nothing is hardcoded into the build.
+// Supabase connection: the default project below, unless this browser has saved a different
+// one (localStorage). The publishable key is meant to be public — data is protected by
+// Row Level Security and by turning off sign-ups in Supabase, not by hiding the key.
+// Forks: change DEFAULT_CONFIG to your own project.
 
 export type SupabaseConfig = { url: string; key: string }
 
+export const DEFAULT_CONFIG: SupabaseConfig = {
+  url: 'https://yxwqmwvelpjwwlvrpvki.supabase.co',
+  key: 'sb_publishable_UJ46Ykxu0xhh4E3T_czhDg_E-Fx3hyu',
+}
+
 const STORAGE_KEY = 'eet.supabase'
 
-export function loadConfig(): SupabaseConfig | null {
+function savedConfig(): SupabaseConfig | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
@@ -14,6 +21,14 @@ export function loadConfig(): SupabaseConfig | null {
   } catch {
     return null
   }
+}
+
+export function loadConfig(): SupabaseConfig {
+  return savedConfig() ?? DEFAULT_CONFIG
+}
+
+export function isDefaultConfig(config = loadConfig()) {
+  return config.url === DEFAULT_CONFIG.url && config.key === DEFAULT_CONFIG.key
 }
 
 export function saveConfig(config: SupabaseConfig) {

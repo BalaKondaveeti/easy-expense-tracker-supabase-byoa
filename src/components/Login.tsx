@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from 'react'
+import { loadConfig } from '../lib/config'
 import { isUnreachable, UNREACHABLE } from '../lib/reach'
 import { sb } from '../lib/supabase'
 import { ErrorNotice } from './ErrorNotice'
 
-export function Login({ onResetConnection }: { onResetConnection: () => void }) {
+export function Login({ onChangeProject }: { onChangeProject: () => void }) {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -76,9 +77,12 @@ export function Login({ onResetConnection }: { onResetConnection: () => void }) 
         >
           {mode === 'signin' ? 'First time? Create an account' : 'Have an account? Sign in'}
         </button>
-        <button type="button" className="btn btn-ghost small" onClick={onResetConnection}>
-          Use a different Supabase project
-        </button>
+        <div className="project-switch">
+          <span className="hint">Project: {new URL(loadConfig().url).hostname.split('.')[0]}</span>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={onChangeProject}>
+            Change Supabase project
+          </button>
+        </div>
       </form>
     </div>
   )

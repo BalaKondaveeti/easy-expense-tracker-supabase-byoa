@@ -5,7 +5,6 @@ import { ErrorNotice } from './components/ErrorNotice'
 import { Login } from './components/Login'
 import { Setup } from './components/Setup'
 import { clearCache, setCacheScope, useCached } from './lib/cache'
-import { clearConfig } from './lib/config'
 import { daysAgo } from './lib/dates'
 import { fetchLists, seedIfEmpty } from './lib/data'
 import { ListsContext } from './lib/lists'
@@ -50,11 +49,11 @@ function useHashRoute() {
 }
 
 export default function App() {
-  const [configured, setConfigured] = useState(() => initSupabase() !== null)
+  const [clientVersion, setClientVersion] = useState(() => (initSupabase(), 0)) // bumps when the project changes
+  const [changingProject, setChangingProject] = useState(false)
   const [session, setSession] = useState<Session | null | undefined>(undefined)
 
   useEffect(() => {
-    if (!configured) return
     sb()
       .auth.getSession()
       .then(({ data }) => setSession(data.session))
@@ -63,26 +62,31 @@ export default function App() {
       setSession(s)
     })
     return () => data.subscription.unsubscribe()
-  }, [configured])
+  }, [clientVersion])
 
-  const resetConnection = async () => {
-    if (!confirm('Forget the Supabase connection on this device?')) return
-    await sb().auth.signOut().catch(() => {})
-    clearConfig()
+  // Switching projects signs out first (accounts belong to a project).
+  const changeProject = async () => {
+    if (session && !confirm('Changing the Supabase project signs you out. Continue?')) return
+    if (session) await sb().auth.signOut().catch(() => {})
     clearCache()
-    initSupabase()
-    setSession(undefined)
-    setConfigured(false)
+    setChangingProject(true)
   }
 
-  if (!configured) return <Setup onDone={() => setConfigured(initSupabase() !== null)} />
+  const projectChanged = () => {
+    initSupabase()
+    setSession(undefined)
+    setClientVersion((v) => v + 1)
+    setChangingProject(false)
+  }
+
+  if (changingProject) return <Setup onDone={projectChanged} onCancel={() => setChangingProject(false)} />
   if (session === undefined) return <div className="centered muted">Loading…</div>
-  if (!session) return <Login onResetConnection={resetConnection} />
+  if (!session) return <Login onChangeProject={changeProject} />
   setCacheScope(session.user.id)
-  return <Main key={session.user.id} email={session.user.email} onResetConnection={resetConnection} />
+  return <Main key={session.user.id} email={session.user.email} onChangeProject={changeProject} />
 }
 
-function Main({ email, onResetConnection }: { email?: string; onResetConnection: () => void }) {
+function Main({ email, onChangeProject }: { email?: string; onChangeProject: () => void }) {
   const hash = useHashRoute()
   const {
     data: lists,
@@ -124,13 +128,13 @@ function Main({ email, onResetConnection }: { email?: string; onResetConnection:
         ))}
       </nav>
       <main className="app">
-        <Route hash={hash} email={email} onResetConnection={onResetConnection} />
+        <Route hash={hash} email={email} onChangeProject={onChangeProject} />
       </main>
     </ListsContext.Provider>
   )
 }
 
-function Route({ hash, email, onResetConnection }: { hash: string; email?: string; onResetConnection: () => void }) {
+function Route({ hash, email, onChangeProject }: { hash: string; email?: string; onChangeProject: () => void }) {
   const { parts, from } = parseRoute(hash)
   if (parts[0] === 'expenses' && parts.length === 3) {
     return <FilteredExpenses key={hash} column={parts[1]} id={parts[2]} from={from} />
@@ -143,7 +147,7 @@ function Route({ hash, email, onResetConnection }: { hash: string; email?: strin
         path={parts.slice(1).join('/')}
         email={email}
         onSignOut={() => sb().auth.signOut()}
-        onResetConnection={onResetConnection}
+        onChangeProject={onChangeProject}
       />
     )
   }

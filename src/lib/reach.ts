@@ -15,7 +15,7 @@ export function isUnreachable(message?: string, status?: number) {
 export function dashboardUrl() {
   const host = (() => {
     try {
-      return new URL(loadConfig()?.url ?? '').hostname
+      return new URL(loadConfig().url).hostname
     } catch {
       return ''
     }
