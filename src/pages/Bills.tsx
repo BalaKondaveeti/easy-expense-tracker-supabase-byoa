@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Badge } from '../components/Badge'
 import { Collapsible } from '../components/Collapsible'
 import { PaymentList } from '../components/EntryLists'
+import { ErrorNotice } from '../components/ErrorNotice'
 import { Freshness } from '../components/Freshness'
 import { Sheet } from '../components/Sheet'
 import { Totals, type Period } from '../components/Totals'
@@ -59,7 +60,7 @@ export function Bills() {
 
       <Totals periods={periods} selected={period} onSelect={setPeriod} />
 
-      {error && <p className="error">{error}</p>}
+      <ErrorNotice error={error} onRetry={refresh} />
 
       {byPayee.length > 0 && (
         <Collapsible id="bills-breakdown" title="By bill">

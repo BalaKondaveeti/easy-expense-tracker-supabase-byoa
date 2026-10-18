@@ -1,11 +1,21 @@
 import { invalidateCache } from './cache'
+import { isUnreachable, UNREACHABLE } from './reach'
 import { sb } from './supabase'
 import type { BillPayment, Card, Category, Expense, Lists, Mood, Payee } from './types'
 
 export type ListTable = 'cards' | 'categories' | 'moods' | 'payees'
 
-function check<T>({ data, error }: { data: T | null; error: { message: string; code?: string } | null }): T {
+function check<T>({
+  data,
+  error,
+  status,
+}: {
+  data: T | null
+  error: { message: string; code?: string } | null
+  status?: number
+}): T {
   if (error) {
+    if (isUnreachable(error.message, status)) throw new Error(UNREACHABLE)
     // PostgREST "table not found" → the schema hasn't been run yet.
     if (error.code === 'PGRST205' || error.code === '42P01') {
       throw new Error('Database tables are missing. Run supabase/schema.sql in the Supabase SQL Editor, then reload.')
@@ -50,7 +60,7 @@ export async function updateListItem(table: ListTable, id: string, values: Recor
 const PAGE = 1000
 
 async function fetchAllPages<T>(
-  query: (from: number, to: number) => PromiseLike<{ data: unknown; error: { message: string; code?: string } | null }>,
+  query: (from: number, to: number) => PromiseLike<{ data: unknown; error: { message: string; code?: string } | null; status?: number }>,
 ): Promise<T[]> {
   const out: T[] = []
   for (let from = 0; ; from += PAGE) {

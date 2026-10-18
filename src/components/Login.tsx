@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from 'react'
+import { isUnreachable, UNREACHABLE } from '../lib/reach'
 import { sb } from '../lib/supabase'
+import { ErrorNotice } from './ErrorNotice'
 
 export function Login({ onResetConnection }: { onResetConnection: () => void }) {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
@@ -28,7 +30,8 @@ export function Login({ onResetConnection }: { onResetConnection: () => void }) 
         if (!data.session) setInfo('Check your email to confirm the account, then sign in.')
       }
     } catch (err) {
-      setError((err as Error).message)
+      const e = err as Error & { status?: number }
+      setError(isUnreachable(e.message, e.status) ? UNREACHABLE : e.message)
     } finally {
       setBusy(false)
     }
@@ -61,7 +64,7 @@ export function Login({ onResetConnection }: { onResetConnection: () => void }) 
             required
           />
         </label>
-        {error && <p className="error">{error}</p>}
+        <ErrorNotice error={error} />
         {info && <p className="hint">{info}</p>}
         <button className="btn btn-primary" disabled={busy}>
           {busy ? '…' : mode === 'signin' ? 'Sign in' : 'Create account'}

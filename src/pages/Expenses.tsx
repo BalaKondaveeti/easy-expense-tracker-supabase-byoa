@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { Badge } from '../components/Badge'
 import { Collapsible } from '../components/Collapsible'
 import { ExpenseList } from '../components/EntryLists'
+import { ErrorNotice } from '../components/ErrorNotice'
 import { Freshness } from '../components/Freshness'
 import { Sheet } from '../components/Sheet'
 import { Totals, type Period } from '../components/Totals'
 import { useCached } from '../lib/cache'
 import { fetchExpenses } from '../lib/data'
-import { daysAgo, formatDay, shiftDays, today } from '../lib/dates'
+import { daysAgo, formatDay, shiftDays, startOfMonth, today } from '../lib/dates'
 import { groupBy, mainAmount, totalsText } from '../lib/group'
 import { byId, useLists } from '../lib/lists'
 import { sumByCurrency } from '../lib/money'
@@ -15,7 +16,7 @@ import { recall, remember } from '../lib/remember'
 import type { Expense } from '../lib/types'
 import { ExpenseForm } from './ExpenseForm'
 
-type PeriodKey = 'today' | '7d' | '30d'
+type PeriodKey = 'today' | 'month' | '30d'
 type Breakdown = 'type' | 'feeling' | 'card'
 
 const BREAKDOWN_COLUMN: Record<Breakdown, 'category_id' | 'mood_id' | 'card_id'> = {
@@ -27,22 +28,16 @@ const BREAKDOWN_COLUMN: Record<Breakdown, 'category_id' | 'mood_id' | 'card_id'>
 
 export function Expenses() {
   const { cards, categories, moods, reload: reloadLists } = useLists()
-  const [period, setPeriodState] = useState(() => recall<PeriodKey>('expenses.period', '7d'))
   const [breakdown, setBreakdownState] = useState(() => recall<Breakdown>('expenses.breakdown', 'type'))
   const [extraDays, setExtraDays] = useState(0) // added by "Show more"
   const [adding, setAdding] = useState(false)
 
-  const starts: Record<PeriodKey, string> = { today: today(), '7d': daysAgo(6), '30d': daysAgo(29) }
-  const listSince = shiftDays(starts[period], -extraDays)
-  const fetchSince = listSince < starts['30d'] ? listSince : starts['30d']
-  const { data, updatedAt, loading, error, refresh } = useCached(`expenses.${fetchSince}`, () => fetchExpenses(fetchSince))
+  const starts: Record<PeriodKey, string> = { today: today(), month: startOfMonth(), '30d': daysAgo(29) }
+  // List + breakdown cover the last 30 days, reaching back to the 1st on the 31st of a month.
+  const base = starts.month < starts['30d'] ? starts.month : starts['30d']
+  const listSince = shiftDays(base, -extraDays)
+  const { data, updatedAt, loading, error, refresh } = useCached(`expenses.${listSince}`, () => fetchExpenses(listSince))
   const expenses = data ?? []
-
-  const setPeriod = (p: PeriodKey) => {
-    remember('expenses.period', p)
-    setPeriodState(p)
-    setExtraDays(0)
-  }
   const setBreakdown = (b: Breakdown) => {
     remember('expenses.breakdown', b)
     setBreakdownState(b)
@@ -53,14 +48,14 @@ export function Expenses() {
 
   const periods: Period<PeriodKey>[] = [
     { key: 'today', label: 'Today', totals: total(inPeriod('today')) },
-    { key: '7d', label: 'Last 7 days', totals: total(inPeriod('7d')) },
+    { key: 'month', label: 'This month', totals: total(inPeriod('month')) },
     { key: '30d', label: 'Last 30 days', totals: total(inPeriod('30d')) },
   ]
 
   const visible = expenses.filter((e) => e.spent_on >= listSince)
 
   const breakdownKey = (e: Expense) => e[BREAKDOWN_COLUMN[breakdown]] ?? ''
-  const breakdownGroups = groupBy(inPeriod(period), breakdownKey, (e) => e.amount).sort(
+  const breakdownGroups = groupBy(expenses.filter((e) => e.spent_on >= base), breakdownKey, (e) => e.amount).sort(
     (a, b) => mainAmount(b.totals) - mainAmount(a.totals),
   )
 
@@ -77,9 +72,9 @@ export function Expenses() {
         <Freshness updatedAt={updatedAt} loading={loading} onRefresh={() => Promise.all([refresh(), reloadLists()])} />
       </div>
 
-      <Totals periods={periods} selected={period} onSelect={setPeriod} />
+      <Totals periods={periods} />
 
-      {error && <p className="error">{error}</p>}
+      <ErrorNotice error={error} onRetry={refresh} />
 
       {breakdownGroups.length > 0 && (
         <Collapsible id="expenses-breakdown" title="Breakdown">
@@ -97,7 +92,7 @@ export function Expenses() {
                 <a
                   key={g.key}
                   className="row row-link"
-                  href={`#/expenses/${BREAKDOWN_COLUMN[breakdown]}/${g.key || 'none'}?from=${starts[period]}`}
+                  href={`#/expenses/${BREAKDOWN_COLUMN[breakdown]}/${g.key || 'none'}?from=${base}`}
                 >
                   <Badge emoji={l.emoji} color={l.color} />
                   <div className="row-main">
@@ -115,7 +110,7 @@ export function Expenses() {
       )}
 
       <section className="section">
-        <h2>{extraDays ? `Since ${formatDay(listSince)}` : periods.find((p) => p.key === period)?.label}</h2>
+        <h2>{extraDays ? `Since ${formatDay(listSince)}` : base === starts['30d'] ? 'Last 30 days' : 'This month'}</h2>
         {!data ? (
           <p className="empty">{loading ? 'Loading…' : ''}</p>
         ) : (

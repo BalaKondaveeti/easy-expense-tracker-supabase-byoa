@@ -1,6 +1,7 @@
 import type { Session } from '@supabase/supabase-js'
 import { useEffect, useState } from 'react'
 import { CardIcon, MenuIcon, ReceiptIcon } from './components/Icons'
+import { ErrorNotice } from './components/ErrorNotice'
 import { Login } from './components/Login'
 import { Setup } from './components/Setup'
 import { clearCache, setCacheScope, useCached } from './lib/cache'
@@ -97,10 +98,7 @@ function Main({ email, onResetConnection }: { email?: string; onResetConnection:
     return (
       <div className="centered">
         <div className="narrow">
-          <p className="error">{error}</p>
-          <button className="btn" onClick={reload}>
-            Retry
-          </button>
+          <ErrorNotice error={error} onRetry={reload} />
           <button className="btn btn-ghost" onClick={() => sb().auth.signOut()}>
             Sign out
           </button>

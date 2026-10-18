@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Badge } from '../components/Badge'
 import { ExpenseList, PaymentList } from '../components/EntryLists'
+import { ErrorNotice } from '../components/ErrorNotice'
 import { Freshness } from '../components/Freshness'
 import { useCached } from '../lib/cache'
 import { fetchBillPayments, fetchExpenses } from '../lib/data'
@@ -108,7 +109,7 @@ export function FilteredExpenses({ column, id, from }: { column: string; id: str
       onMore={() => setExtraDays(extraDays + 30)}
       loading={loading}
     >
-      {error && <p className="error">{error}</p>}
+      <ErrorNotice error={error} onRetry={refresh} />
       {data ? <ExpenseList expenses={data} emptyText="No expenses in this range." /> : <p className="empty">Loading…</p>}
     </FilteredPage>
   )
@@ -135,7 +136,7 @@ export function FilteredPayments({ id, from }: { id: string; from: string }) {
       onMore={() => setExtraDays(extraDays + 30)}
       loading={loading}
     >
-      {error && <p className="error">{error}</p>}
+      <ErrorNotice error={error} onRetry={refresh} />
       {data ? <PaymentList payments={data} emptyText="No payments in this range." /> : <p className="empty">Loading…</p>}
     </FilteredPage>
   )

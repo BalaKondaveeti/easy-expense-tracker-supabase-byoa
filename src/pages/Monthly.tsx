@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ErrorNotice } from '../components/ErrorNotice'
 import { Freshness } from '../components/Freshness'
 import { useCached } from '../lib/cache'
 import { fetchMonthlyRows, type MonthlyRow } from '../lib/data'
@@ -25,7 +26,7 @@ export function Monthly() {
         <span className="hint">Last {months} months</span>
         <Freshness updatedAt={updatedAt} loading={loading} onRefresh={refresh} />
       </div>
-      {error && <p className="error">{error}</p>}
+      <ErrorNotice error={error} onRetry={refresh} />
       {!data ? (
         <p className="empty">{loading ? 'Loading…' : ''}</p>
       ) : keys.length === 0 ? (
