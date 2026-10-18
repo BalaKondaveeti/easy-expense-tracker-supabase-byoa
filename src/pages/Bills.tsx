@@ -12,7 +12,6 @@ import { daysAgo, formatDay, shiftDays, startOfMonth, startOfWeek } from '../lib
 import { groupBy, mainAmount, totalsText } from '../lib/group'
 import { byId, useLists } from '../lib/lists'
 import { sumByCurrency } from '../lib/money'
-import { recall, remember } from '../lib/remember'
 import type { BillPayment } from '../lib/types'
 import { BillForm } from './BillForm'
 
@@ -21,21 +20,15 @@ type PeriodKey = 'week' | 'month' | '30d'
 
 export function Bills() {
   const { payees, reload: reloadLists } = useLists()
-  const [period, setPeriodState] = useState(() => recall<PeriodKey>('bills.period', 'month'))
   const [extraDays, setExtraDays] = useState(0) // added by "Show more"
   const [adding, setAdding] = useState(false)
 
   const starts: Record<PeriodKey, string> = { week: startOfWeek(), month: startOfMonth(), '30d': daysAgo(29) }
-  const listSince = shiftDays(starts[period], -extraDays)
-  const fetchSince = [listSince, ...Object.values(starts)].sort()[0]
-  const { data, updatedAt, loading, error, refresh } = useCached(`bills.${fetchSince}`, () => fetchBillPayments(fetchSince))
+  // List + breakdown cover the last 30 days, reaching back to the 1st on the 31st of a month.
+  const base = starts.month < starts['30d'] ? starts.month : starts['30d']
+  const listSince = shiftDays(base, -extraDays)
+  const { data, updatedAt, loading, error, refresh } = useCached(`bills.${listSince}`, () => fetchBillPayments(listSince))
   const payments = data ?? []
-
-  const setPeriod = (p: PeriodKey) => {
-    remember('bills.period', p)
-    setPeriodState(p)
-    setExtraDays(0)
-  }
 
   const inPeriod = (key: PeriodKey) => payments.filter((p) => p.paid_on >= starts[key])
   const total = (rows: BillPayment[]) => sumByCurrency(rows, (p) => p.amount, (p) => p.currency)
@@ -46,7 +39,7 @@ export function Bills() {
     { key: '30d', label: 'Last 30 days', totals: total(inPeriod('30d')) },
   ]
 
-  const byPayee = groupBy(inPeriod(period), (p) => p.payee_id, (p) => p.amount).sort(
+  const byPayee = groupBy(payments.filter((p) => p.paid_on >= base), (p) => p.payee_id, (p) => p.amount).sort(
     (a, b) => mainAmount(b.totals) - mainAmount(a.totals),
   )
   const visible = payments.filter((p) => p.paid_on >= listSince)
@@ -58,7 +51,7 @@ export function Bills() {
         <Freshness updatedAt={updatedAt} loading={loading} onRefresh={() => Promise.all([refresh(), reloadLists()])} />
       </div>
 
-      <Totals periods={periods} selected={period} onSelect={setPeriod} />
+      <Totals periods={periods} />
 
       <ErrorNotice error={error} onRetry={refresh} />
 
@@ -68,7 +61,7 @@ export function Bills() {
             {byPayee.map((g) => {
               const payee = byId(payees, g.key)
               return (
-                <a key={g.key} className="row row-link" href={`#/bills/payee_id/${g.key}?from=${starts[period]}`}>
+                <a key={g.key} className="row row-link" href={`#/bills/payee_id/${g.key}?from=${base}`}>
                   <Badge emoji={payee?.emoji} color={payee?.color} />
                   <div className="row-main">
                     <div className="row-title">{payee?.name ?? 'Unknown'}</div>
@@ -89,7 +82,7 @@ export function Bills() {
         {!data ? (
           <p className="empty">{loading ? 'Loading…' : ''}</p>
         ) : (
-          <PaymentList payments={visible} emptyText="No payments in this period." />
+          <PaymentList payments={visible} emptyText="No payments yet. Tap + to add one." />
         )}
         {data && (
           <button className="btn btn-ghost" onClick={() => setExtraDays(extraDays + 30)} disabled={loading}>
