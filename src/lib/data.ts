@@ -158,31 +158,31 @@ export function seedIfEmpty(lists: Lists): Promise<boolean> {
     check(await sb().from('cards').insert([{ name: 'Cash', default_cashback_pct: 0 }]))
     check(
       await sb().from('categories').insert([
-        { name: 'Restaurant', emoji: '🍽️', color: '#e07a5f' },
-        { name: 'Groceries', emoji: '🛒', color: '#81b29a' },
-        { name: 'Clothes', emoji: '👕', color: '#9c89b8' },
-        { name: 'Entertainment', emoji: '🎬', color: '#f2cc8f' },
-        { name: 'Transport', emoji: '🚗', color: '#5c80bc' },
-        { name: 'Shopping', emoji: '🛍️', color: '#d4a5a5' },
-        { name: 'Health', emoji: '💊', color: '#6fb1a0' },
-        { name: 'Travel', emoji: '✈️', color: '#4ea8de' },
-        { name: 'Other', emoji: '📦', color: '#8a8a8a' },
+        { name: 'Restaurant', emoji: '🍽️', color: '#eb6834' },
+        { name: 'Groceries', emoji: '🛒', color: '#1baf7a' },
+        { name: 'Clothes', emoji: '👕', color: '#e87ba4' },
+        { name: 'Entertainment', emoji: '🎬', color: '#4a3aa7' },
+        { name: 'Transport', emoji: '🚗', color: '#2a78d6' },
+        { name: 'Shopping', emoji: '🛍️', color: '#eda100' },
+        { name: 'Health', emoji: '💊', color: '#008300' },
+        { name: 'Travel', emoji: '✈️', color: '#e34948' },
+        { name: 'Other', emoji: '📦', color: '#8e8e93' },
       ]),
     )
     check(
       await sb().from('moods').insert([
-        { name: 'Useful', emoji: '✅', color: '#81b29a' },
-        { name: 'Worth it', emoji: '😊', color: '#4ea8de' },
-        { name: 'Not useful', emoji: '😐', color: '#f2cc8f' },
-        { name: 'Waste of money', emoji: '💸', color: '#e07a5f' },
+        { name: 'Useful', emoji: '✅', color: '#1baf7a' },
+        { name: 'Worth it', emoji: '😊', color: '#2a78d6' },
+        { name: 'Not useful', emoji: '😐', color: '#eda100' },
+        { name: 'Waste of money', emoji: '💸', color: '#e34948' },
       ]),
     )
     check(
       await sb().from('payees').insert([
-        { name: 'Rent', kind: 'Rent', emoji: '🏠', color: '#5c80bc' },
-        { name: 'Electricity', kind: 'Utilities', emoji: '💡', color: '#f2cc8f' },
-        { name: 'Internet', kind: 'Utilities', emoji: '🌐', color: '#4ea8de' },
-        { name: 'Remitly', kind: 'Remittance', emoji: '🌍', color: '#81b29a' },
+        { name: 'Rent', kind: 'Rent', emoji: '🏠', color: '#2a78d6' },
+        { name: 'Electricity', kind: 'Utilities', emoji: '💡', color: '#eda100' },
+        { name: 'Internet', kind: 'Utilities', emoji: '🌐', color: '#4a3aa7' },
+        { name: 'Remitly', kind: 'Remittance', emoji: '🌍', color: '#1baf7a' },
       ]),
     )
     return true

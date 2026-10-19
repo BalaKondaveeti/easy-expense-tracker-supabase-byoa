@@ -41,6 +41,10 @@ export function Login({ onChangeProject }: { onChangeProject: () => void }) {
   return (
     <div className="centered">
       <form className="narrow form" onSubmit={submit}>
+        <div className="brand">
+          <img className="brand-icon" src="./icon.svg" alt="" />
+          <div className="brand-name">Expenses</div>
+        </div>
         <h1>{mode === 'signin' ? 'Sign in' : 'Create account'}</h1>
         <label className="field">
           <span>Email</span>

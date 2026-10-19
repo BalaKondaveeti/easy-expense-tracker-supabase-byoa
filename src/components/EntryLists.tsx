@@ -46,13 +46,14 @@ export function ExpenseList({ expenses, emptyText }: { expenses: Expense[]; empt
 
   return (
     <>
-      <div className="list">
+      <div className="days">
         {groupBy(expenses, (e) => e.spent_on, (e) => e.amount).map((day) => (
-          <div key={day.key}>
+          <section key={day.key} className="day-group">
             <div className="day">
               <span>{formatDay(day.key)}</span>
               <span>{totalsText(day.totals)}</span>
             </div>
+            <div className="card">
             {day.rows.map((e) => (
               <SwipeRow
                 key={e.id}
@@ -65,7 +66,8 @@ export function ExpenseList({ expenses, emptyText }: { expenses: Expense[]; empt
                 <ExpenseRow expense={e} expanded={expanded === e.id} />
               </SwipeRow>
             ))}
-          </div>
+            </div>
+          </section>
         ))}
       </div>
       {editing && (
@@ -120,13 +122,14 @@ export function PaymentList({ payments, emptyText }: { payments: BillPayment[]; 
 
   return (
     <>
-      <div className="list">
+      <div className="days">
         {groupBy(payments, (p) => p.paid_on.slice(0, 7), (p) => p.amount).map((month) => (
-          <div key={month.key}>
+          <section key={month.key} className="day-group">
             <div className="day">
               <span>{formatMonth(month.key)}</span>
               <span>{totalsText(month.totals)}</span>
             </div>
+            <div className="card">
             {month.rows.map((p) => {
               const payee = byId(payees, p.payee_id)
               const card = byId(cards, p.card_id)
@@ -162,7 +165,8 @@ export function PaymentList({ payments, emptyText }: { payments: BillPayment[]; 
                 </SwipeRow>
               )
             })}
-          </div>
+            </div>
+          </section>
         ))}
       </div>
       {editing && (

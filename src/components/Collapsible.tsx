@@ -21,14 +21,14 @@ export function Collapsible({ id, title, children }: { id: string; title: string
   }
 
   return (
-    <section className="section">
+    <section className="card collapsible">
       <button className="collapse-toggle" aria-expanded={open} onClick={toggle}>
-        <h2>{title}</h2>
+        <span>{title}</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="m6 9 6 6 6-6" />
         </svg>
       </button>
-      {open && children}
+      {open && <div className="collapse-body">{children}</div>}
     </section>
   )
 }

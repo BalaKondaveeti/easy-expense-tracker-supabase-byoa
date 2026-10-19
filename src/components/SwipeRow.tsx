@@ -69,7 +69,11 @@ export function SwipeRow({ actions, onTap, children }: { actions: SwipeAction[];
 
   return (
     <div className="swipe">
-      <div className="swipe-actions" style={{ width }} aria-hidden={!open}>
+      <div
+        className="swipe-actions"
+        style={{ width, visibility: open || dragX !== null ? 'visible' : 'hidden' }}
+        aria-hidden={!open}
+      >
         {actions.map((a) => (
           <button
             key={a.label}

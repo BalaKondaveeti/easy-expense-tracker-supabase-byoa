@@ -1,21 +1,23 @@
 import type { ReactNode } from 'react'
 import type { ListTable } from '../lib/data'
+import { CardIcon, ChartIcon, ChevronLeft, ChevronRight, DatabaseIcon, LogOutIcon, ReceiptIcon, SmileIcon, TagIcon } from '../components/Icons'
 import { useLists } from '../lib/lists'
+import { SERIES_COLORS } from '../lib/palette'
 import { Connection } from './Connection'
 import { ListManager } from './ListManager'
 import { Monthly } from './Monthly'
 
-type Sub = { path: string; title: string }
+type Sub = { path: string; title: string; icon: ReactNode; color: string }
 
 const LIST_PAGES: (Sub & { table: ListTable })[] = [
-  { path: 'cards', title: 'Cards', table: 'cards' },
-  { path: 'types', title: 'Expense types', table: 'categories' },
-  { path: 'feelings', title: 'Feelings', table: 'moods' },
-  { path: 'bills', title: 'Bills', table: 'payees' },
+  { path: 'cards', title: 'Cards', table: 'cards', icon: <CardIcon />, color: SERIES_COLORS[0] },
+  { path: 'types', title: 'Expense types', table: 'categories', icon: <TagIcon />, color: SERIES_COLORS[1] },
+  { path: 'feelings', title: 'Feelings', table: 'moods', icon: <SmileIcon />, color: SERIES_COLORS[4] },
+  { path: 'bills', title: 'Bills', table: 'payees', icon: <ReceiptIcon />, color: SERIES_COLORS[2] },
 ]
 
-const MONTHLY: Sub = { path: 'monthly', title: 'Monthly summary' }
-const CONNECTION: Sub = { path: 'connection', title: 'Supabase connection' }
+const MONTHLY: Sub = { path: 'monthly', title: 'Monthly summary', icon: <ChartIcon />, color: SERIES_COLORS[6] }
+const CONNECTION: Sub = { path: 'connection', title: 'Supabase connection', icon: <DatabaseIcon />, color: SERIES_COLORS[5] }
 
 // '#/menu' shows the button list; '#/menu/<path>' shows one section.
 export function Menu({
@@ -43,15 +45,16 @@ export function Menu({
     <div className="page">
       <MenuSection title="Lists">
         {LIST_PAGES.map((p) => (
-          <MenuLink key={p.path} href={`#/menu/${p.path}`} label={p.title} detail={String(active(p.table))} />
+          <MenuLink key={p.path} sub={p} detail={String(active(p.table))} />
         ))}
       </MenuSection>
       <MenuSection title="Insights">
-        <MenuLink href={`#/menu/${MONTHLY.path}`} label={MONTHLY.title} />
+        <MenuLink sub={MONTHLY} />
       </MenuSection>
       <MenuSection title="App">
-        <MenuLink href={`#/menu/${CONNECTION.path}`} label={CONNECTION.title} />
+        <MenuLink sub={CONNECTION} />
         <button className="menu-item danger" onClick={onSignOut}>
+          <MenuIcon icon={<LogOutIcon />} color={SERIES_COLORS[7]} />
           <span className="grow">Sign out</span>
           {email && <span className="menu-detail">{email}</span>}
         </button>
@@ -64,19 +67,29 @@ function MenuSection({ title, children }: { title: string; children: ReactNode }
   return (
     <section className="section">
       <h2>{title}</h2>
-      <div className="menu-group">{children}</div>
+      <div className="card menu-group">{children}</div>
     </section>
   )
 }
 
-function MenuLink({ href, label, detail }: { href: string; label: string; detail?: string }) {
+// iOS Settings-style colored icon tile
+function MenuIcon({ icon, color }: { icon: ReactNode; color: string }) {
   return (
-    <a className="menu-item" href={href}>
-      <span className="grow">{label}</span>
+    <span className="menu-icon" style={{ background: color }}>
+      {icon}
+    </span>
+  )
+}
+
+function MenuLink({ sub, detail }: { sub: Sub; detail?: string }) {
+  return (
+    <a className="menu-item" href={`#/menu/${sub.path}`}>
+      <MenuIcon icon={sub.icon} color={sub.color} />
+      <span className="grow">{sub.title}</span>
       {detail && <span className="menu-detail">{detail}</span>}
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <path d="m9 18 6-6-6-6" />
-      </svg>
+      <span className="chevron">
+        <ChevronRight />
+      </span>
     </a>
   )
 }
@@ -86,9 +99,7 @@ function SubPage({ title, children }: { title: string; children: ReactNode }) {
     <div className="page">
       <div className="subpage-head sticky-head">
         <a className="back" href="#/menu" aria-label="Back">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="m15 18-6-6 6-6" />
-          </svg>
+          <ChevronLeft />
         </a>
         <h1>{title}</h1>
       </div>

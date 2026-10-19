@@ -60,7 +60,8 @@ npm run dev
 
 ## Changing the look
 
-All colors, fonts, spacing and radii are CSS variables in [`src/theme.css`](src/theme.css), with light and dark variants.
+The look follows Apple's iOS design (grouped cards, large titles, frosted bars, gradient summary cards).
+All colors, gradients, fonts, spacing, radii and shadows are CSS variables in [`src/theme.css`](src/theme.css), with light and dark variants.
 Edit that file to restyle the app. `src/styles.css` only references those tokens.
 
 Other knobs:

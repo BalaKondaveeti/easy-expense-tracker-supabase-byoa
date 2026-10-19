@@ -4,7 +4,7 @@ import { Freshness } from '../components/Freshness'
 import { useCached } from '../lib/cache'
 import { fetchMonthlyRows, type MonthlyRow } from '../lib/data'
 import { formatMonth, monthsAgo } from '../lib/dates'
-import { groupBy, totalsText } from '../lib/group'
+import { groupBy, mainAmount, totalsText } from '../lib/group'
 import { afterCashback, sumByCurrency } from '../lib/money'
 
 const STEP = 12 // months per "Show older"
@@ -19,6 +19,9 @@ export function Monthly() {
   const expenses = byMonth(data?.expenses ?? [])
   const bills = byMonth(data?.bills ?? [])
   const keys = [...new Set([...expenses.keys(), ...bills.keys()])].sort().reverse()
+  // One shared scale (main currency) so expense and bill bars compare directly.
+  const max = Math.max(1, ...[...expenses.values(), ...bills.values()].map((g) => mainAmount(g.totals)))
+  const pct = (g?: { totals: [string, number][] }) => (g ? `${(Math.max(0, mainAmount(g.totals)) / max) * 100}%` : '0%')
 
   return (
     <section className="section">
@@ -32,7 +35,7 @@ export function Monthly() {
       ) : keys.length === 0 ? (
         <p className="empty">Nothing recorded yet.</p>
       ) : (
-        <div className="list">
+        <div className="card">
           {keys.map((key) => {
             const e = expenses.get(key)
             const b = bills.get(key)
@@ -47,12 +50,18 @@ export function Monthly() {
                 <div className="month-title">{formatMonth(key)}</div>
                 <div className="month-grid">
                   <div>
-                    <div className="total-label">Expenses</div>
+                    <div className="stat-label">Expenses</div>
                     <div className="month-value">{e ? totalsText(e.totals) : '—'}</div>
+                    <div className="meter">
+                      <span className="meter-expenses" style={{ width: pct(e) }} />
+                    </div>
                   </div>
                   <div>
-                    <div className="total-label">Bills</div>
+                    <div className="stat-label">Bills</div>
                     <div className="month-value">{b ? totalsText(b.totals) : '—'}</div>
+                    <div className="meter">
+                      <span className="meter-bills" style={{ width: pct(b) }} />
+                    </div>
                   </div>
                 </div>
                 {counts.length > 0 && <div className="row-sub">{counts.join(' · ')}</div>}

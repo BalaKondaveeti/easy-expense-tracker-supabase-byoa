@@ -58,3 +58,73 @@ export function TrashIcon() {
     </svg>
   )
 }
+
+export function TagIcon() {
+  return (
+    <svg {...base}>
+      <path d="M12.59 2.59A2 2 0 0 0 11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.42l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42z" />
+      <circle cx="7.5" cy="7.5" r="1.5" />
+    </svg>
+  )
+}
+
+export function SmileIcon() {
+  return (
+    <svg {...base}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" />
+    </svg>
+  )
+}
+
+export function ChartIcon() {
+  return (
+    <svg {...base}>
+      <path d="M3 3v18h18" />
+      <path d="M8 17v-5M13 17V7M18 17v-8" />
+    </svg>
+  )
+}
+
+export function DatabaseIcon() {
+  return (
+    <svg {...base}>
+      <ellipse cx="12" cy="5" rx="9" ry="3" />
+      <path d="M3 5v14a9 3 0 0 0 18 0V5" />
+      <path d="M3 12a9 3 0 0 0 18 0" />
+    </svg>
+  )
+}
+
+export function LogOutIcon() {
+  return (
+    <svg {...base}>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <path d="m16 17 5-5-5-5M21 12H9" />
+    </svg>
+  )
+}
+
+export function PlusIcon() {
+  return (
+    <svg {...base} width={26} height={26} strokeWidth={2.25}>
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  )
+}
+
+export function ChevronRight() {
+  return (
+    <svg {...base} width={16} height={16} strokeWidth={2.25}>
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  )
+}
+
+export function ChevronLeft() {
+  return (
+    <svg {...base} width={24} height={24} strokeWidth={2.25}>
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  )
+}

@@ -14,9 +14,10 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
   return (
     <div className="overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className="sheet" role="dialog" aria-modal="true" aria-label={title}>
+        <div className="sheet-handle" aria-hidden />
         <div className="sheet-head">
-          <h1>{title}</h1>
-          <button type="button" className="btn btn-ghost" onClick={onClose}>
+          <h2 className="sheet-title">{title}</h2>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={onClose}>
             Close
           </button>
         </div>

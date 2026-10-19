@@ -28,6 +28,10 @@ export function Setup({ onDone, onCancel }: { onDone: () => void; onCancel: () =
   return (
     <div className="centered">
       <form className="narrow form" onSubmit={submit}>
+        <div className="brand">
+          <img className="brand-icon" src="./icon.svg" alt="" />
+          <div className="brand-name">Expenses</div>
+        </div>
         <h1>Supabase project</h1>
         <p className="hint">
           Find these in your Supabase project under Project Settings → API. A different project is saved only in this browser.

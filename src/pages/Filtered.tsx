@@ -3,6 +3,7 @@ import { Badge } from '../components/Badge'
 import { ExpenseList, PaymentList } from '../components/EntryLists'
 import { ErrorNotice } from '../components/ErrorNotice'
 import { Freshness } from '../components/Freshness'
+import { ChevronLeft } from '../components/Icons'
 import { useCached } from '../lib/cache'
 import { fetchBillPayments, fetchExpenses } from '../lib/data'
 import { formatDay, monthsAgo, shiftDays } from '../lib/dates'
@@ -56,17 +57,15 @@ function FilteredPage({
             }
           }}
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="m15 18-6-6 6-6" />
-          </svg>
+          <ChevronLeft />
         </a>
         <Badge emoji={emoji} color={color} />
         <h1 className="grow">{title}</h1>
       </div>
-      <div className="page-head">
+      <div className="card stat-card">
         <div>
-          <div className="total-label">Since {formatDay(since)}</div>
-          <div className="total-value">{totals}</div>
+          <div className="stat-label">Since {formatDay(since)}</div>
+          <div className="stat-value">{totals}</div>
         </div>
         {freshness}
       </div>

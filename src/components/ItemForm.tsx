@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { insertListItem, updateListItem, type ListTable } from '../lib/data'
+import { useLists } from '../lib/lists'
+import { SERIES_COLORS } from '../lib/palette'
 import { CURRENCIES, DEFAULT_CURRENCY } from '../lib/money'
 import { PAYEE_KINDS } from '../lib/types'
 
@@ -16,9 +18,9 @@ type Values = {
 
 const DEFAULTS: Record<ListTable, Partial<Values>> = {
   cards: { default_cashback_pct: '1' },
-  categories: { emoji: '📦', color: '#8a8a8a' },
-  moods: { emoji: '🙂', color: '#8a8a8a' },
-  payees: { emoji: '🧾', color: '#8a8a8a', kind: 'Other', currency: DEFAULT_CURRENCY },
+  categories: { emoji: '📦' },
+  moods: { emoji: '🙂' },
+  payees: { emoji: '🧾', kind: 'Other', currency: DEFAULT_CURRENCY },
 }
 
 const LIST_LABELS: Record<ListTable, string> = {
@@ -41,8 +43,11 @@ export function ItemForm<T extends { id: string }>({
   onSaved: (item: T) => void
   onCancel: () => void
 }) {
+  const lists = useLists()
   const [v, setV] = useState<Values>(() => {
-    const base = { name: initialName, emoji: '', color: '#8a8a8a', default_cashback_pct: '', kind: '', default_amount: '', currency: DEFAULT_CURRENCY, ...DEFAULTS[table] }
+    // New items take the next color from the validated palette.
+    const nextColor = SERIES_COLORS[lists[table].length % SERIES_COLORS.length]
+    const base = { name: initialName, emoji: '', default_cashback_pct: '', kind: '', default_amount: '', currency: DEFAULT_CURRENCY, color: nextColor, ...DEFAULTS[table] }
     if (!initial) return base
     const out = { ...base }
     for (const k of Object.keys(base) as (keyof Values)[]) {

@@ -42,7 +42,7 @@ export function ListManager({ table }: { table: ListTable }) {
     <section className="section">
       {error && <p className="error">{error}</p>}
 
-      <div className="list">
+      <div className="card">
         {[...items]
           .sort((a, b) => Number(a.archived) - Number(b.archived))
           .map((item) =>

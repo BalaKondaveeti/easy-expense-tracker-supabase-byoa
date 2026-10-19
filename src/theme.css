@@ -1,26 +1,52 @@
 /*
  * Design tokens. Restyle the whole app by editing this file only.
- * Every color, font, radius and spacing value in styles.css comes from here.
+ * Look: Apple iOS (grouped lists, large titles, frosted bars). Every color, font,
+ * radius, shadow and spacing value in styles.css comes from here.
  */
 :root {
-  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-size: 16px;
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-size: 17px;
   --font-size-sm: 13px;
-  --font-size-lg: 22px;
+  --font-size-title: 34px;
 
-  --bg: #ffffff;
-  --surface: #f6f6f6;
-  --text: #111111;
-  --muted: #8a8a8a;
-  --border: #ebebeb;
-  --accent: #111111; /* primary buttons, selected states */
+  /* surfaces */
+  --bg: #f2f2f7; /* page (iOS grouped background) */
+  --surface: #ffffff; /* cards */
+  --surface-2: #f2f2f7; /* inputs & controls inside cards/sheets */
+  --chrome: rgb(242 242 247 / 0.82); /* frosted header & tab bar */
+  --overlay: rgb(0 0 0 / 0.32);
+
+  /* text */
+  --text: #000000;
+  --text-2: #3c3c43;
+  --muted: #8e8e93;
+  --border: rgb(60 60 67 / 0.14); /* hairline separators */
+
+  /* brand */
+  --accent: #5b4fe0; /* links, active tab, focus */
+  --accent-strong: #5b4fe0; /* filled button background (white text) */
   --accent-text: #ffffff;
-  --danger: #c0392b;
-  --delete-action: #2563eb; /* swipe-left Delete button */
-  --overlay: rgb(0 0 0 / 0.35);
+  --hero-expenses: linear-gradient(135deg, #4338ca 0%, #6d28d9 55%, #a21caf 100%);
+  --hero-bills: linear-gradient(135deg, #075985 0%, #0e7490 55%, #0f766e 100%);
+  --hero-text: #ffffff;
+  --series-expenses: #5b4fe0;
+  --series-bills: #0e8f8a;
 
-  --radius: 12px;
-  --radius-sm: 8px;
+  /* states & actions */
+  --danger: #ff3b30;
+  --delete-action: #007aff; /* swipe-left Delete */
+  --edit-action: #8e8e93; /* swipe-left Edit */
+
+  /* shape */
+  --radius-lg: 22px; /* hero */
+  --radius: 14px; /* cards */
+  --radius-sm: 10px; /* inputs, buttons */
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 1px rgb(0 0 0 / 0.02);
+  --shadow-hero: 0 12px 28px -10px rgb(67 56 202 / 0.55);
+  --shadow-hero-bills: 0 12px 28px -10px rgb(14 116 144 / 0.55);
+  --shadow-float: 0 10px 24px -6px rgb(91 79 224 / 0.6);
+
+  /* spacing */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -28,23 +54,40 @@
   --space-5: 24px;
   --space-6: 32px;
   --content-width: 640px;
-  --nav-height: 60px;
+  --nav-height: 58px;
 
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #111111;
-    --surface: #1c1c1c;
-    --text: #f2f2f2;
-    --muted: #8a8a8a;
-    --border: #262626;
-    --accent: #f2f2f2;
-    --accent-text: #111111;
-    --danger: #e57373;
-    --delete-action: #3b82f6;
+    --bg: #000000;
+    --surface: #1c1c1e;
+    --surface-2: #2c2c2e;
+    --chrome: rgb(18 18 20 / 0.78);
     --overlay: rgb(0 0 0 / 0.6);
+
+    --text: #ffffff;
+    --text-2: rgb(235 235 245 / 0.78);
+    --muted: #8e8e93;
+    --border: rgb(84 84 88 / 0.5);
+
+    --accent: #8b83ff;
+    --accent-strong: #5e5ce6;
+    --accent-text: #ffffff;
+    --hero-expenses: linear-gradient(135deg, #3730a3 0%, #5b21b6 55%, #86198f 100%);
+    --hero-bills: linear-gradient(135deg, #0c4a6e 0%, #155e75 55%, #115e59 100%);
+    --series-expenses: #8b83ff;
+    --series-bills: #2fb8b0;
+
+    --danger: #ff453a;
+    --delete-action: #0a84ff;
+    --edit-action: #636366;
+
+    --shadow-card: none;
+    --shadow-hero: 0 12px 28px -12px rgb(91 33 182 / 0.6);
+    --shadow-hero-bills: 0 12px 28px -12px rgb(21 94 117 / 0.6);
+    --shadow-float: 0 10px 24px -6px rgb(139 131 255 / 0.45);
 
     color-scheme: dark;
   }
